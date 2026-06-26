@@ -1,0 +1,15 @@
+.git
+.venv
+__pycache__
+*.pyc
+.pytest_cache
+.env
+replays
+top_replays
+experiments
+rogii-2026
+submissions
+public_agents
+orbit_wars_kit
+*.ipynb
+*.zip
