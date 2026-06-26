@@ -6,8 +6,8 @@ def test_human_review_required_for_critical() -> None:
     assert requires_human_review(CaseType.OTHER, Severity.CRITICAL) is True
 
 
-def test_human_review_required_for_high_severity() -> None:
-    assert requires_human_review(CaseType.WRONG_TRANSFER, Severity.HIGH) is True
+def test_human_review_not_required_for_high_severity_alone() -> None:
+    assert requires_human_review(CaseType.WRONG_TRANSFER, Severity.HIGH) is False
 
 
 def test_human_review_required_for_phishing() -> None:

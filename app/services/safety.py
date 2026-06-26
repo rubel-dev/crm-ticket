@@ -26,8 +26,21 @@ PHISHING_TERMS = (
     "cvv",
     "full card",
     "card number",
+    "verification number",
     "verification code",
     "security code",
+    "one time code",
+    "one-time code",
+    "login code",
+    "secret code",
+    "account code",
+    "bkash agent",
+    "bikash agent",
+    "nagad agent",
+    "verify account",
+    "send code",
+    "share verification",
+    "share verification code",
     "scam",
     "fraud",
     "phishing",
@@ -62,10 +75,7 @@ def has_phishing_signal(message: str) -> bool:
 
 
 def requires_human_review(case_type: CaseType, severity: Severity) -> bool:
-    return (
-        severity in (Severity.HIGH, Severity.CRITICAL)
-        or case_type == CaseType.PHISHING_OR_SOCIAL_ENGINEERING
-    )
+    return severity == Severity.CRITICAL or case_type == CaseType.PHISHING_OR_SOCIAL_ENGINEERING
 
 
 def sanitize_agent_summary(summary: str) -> str:
