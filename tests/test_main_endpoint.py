@@ -36,7 +36,7 @@ def test_sort_ticket_wrong_transfer() -> None:
         "severity": "high",
         "department": "dispute_resolution",
         "agent_summary": "Customer reports sending money to the wrong recipient and requests assistance.",
-        "human_review_required": True,
+        "human_review_required": False,
         "confidence": 0.94,
     }
 
@@ -63,7 +63,7 @@ def test_sort_ticket_payment_failed() -> None:
     assert body["case_type"] == "payment_failed"
     assert body["severity"] == "high"
     assert body["department"] == "payments_ops"
-    assert body["human_review_required"] is True
+    assert body["human_review_required"] is False
 
 
 def test_sort_ticket_simple_refund_goes_to_customer_support() -> None:

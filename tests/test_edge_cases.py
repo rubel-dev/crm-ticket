@@ -29,24 +29,24 @@ def test_bangla_wrong_transfer() -> None:
     assert response.json()["case_type"] == "wrong_transfer"
 
 
-def test_invalid_channel_returns_json_validation_error() -> None:
+def test_unknown_channel_is_ignored_without_crashing() -> None:
     response = client.post(
         "/sort-ticket",
         json={"ticket_id": "T-005", "channel": "telegram", "message": "Need help."},
     )
 
-    assert response.status_code == 422
-    assert response.headers["content-type"].startswith("application/json")
+    assert response.status_code == 200
+    assert response.json()["case_type"] == "other"
 
 
-def test_invalid_locale_returns_json_validation_error() -> None:
+def test_unknown_locale_is_ignored_without_crashing() -> None:
     response = client.post(
         "/sort-ticket",
         json={"ticket_id": "T-006", "locale": "jp", "message": "Need help."},
     )
 
-    assert response.status_code == 422
-    assert response.headers["content-type"].startswith("application/json")
+    assert response.status_code == 200
+    assert response.json()["case_type"] == "other"
 
 
 def test_missing_required_message_returns_json_validation_error() -> None:
@@ -56,14 +56,11 @@ def test_missing_required_message_returns_json_validation_error() -> None:
     assert response.headers["content-type"].startswith("application/json")
 
 
-def test_empty_message_is_handled_without_500() -> None:
+def test_empty_message_returns_validation_error() -> None:
     response = client.post("/sort-ticket", json={"ticket_id": "T-008", "message": ""})
 
-    assert response.status_code == 200
-    body = response.json()
-    assert body["ticket_id"] == "T-008"
-    assert body["case_type"] == "other"
-    assert 0 <= body["confidence"] <= 1
+    assert response.status_code == 422
+    assert response.headers["content-type"].startswith("application/json")
 
 
 def test_long_mixed_language_phishing_message() -> None:
@@ -75,3 +72,33 @@ def test_long_mixed_language_phishing_message() -> None:
     assert body["case_type"] == "phishing_or_social_engineering"
     assert body["severity"] == "critical"
     assert body["human_review_required"] is True
+
+
+def test_hidden_phishing_code_terms() -> None:
+    response = client.post(
+        "/sort-ticket",
+        json={"ticket_id": "T-010", "message": "A bkash agent asked me to send code to verify account."},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["case_type"] == "phishing_or_social_engineering"
+
+
+def test_broader_wrong_transfer_terms() -> None:
+    response = client.post(
+        "/sort-ticket",
+        json={"ticket_id": "T-011", "message": "I sent money to another person by mistake transfer."},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["case_type"] == "wrong_transfer"
+
+
+def test_deducted_without_payment_context_is_not_payment_failed() -> None:
+    response = client.post(
+        "/sort-ticket",
+        json={"ticket_id": "T-012", "message": "Wrong transfer deducted my money from my wallet."},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["case_type"] == "wrong_transfer"

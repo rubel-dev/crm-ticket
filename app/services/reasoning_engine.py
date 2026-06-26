@@ -14,9 +14,19 @@ WRONG_TRANSFER_TERMS = (
     "wrong number",
     "wrong recipient",
     "wrong account",
+    "wrong mobile",
+    "wrong wallet",
+    "another person",
+    "sent to another",
+    "sent money to another",
+    "sent to someone else",
+    "mistake transfer",
+    "mistaken transfer",
     "mistakenly sent",
     "sent by mistake",
     "wrong transfer",
+    "incorrect number",
+    "incorrect recipient",
     "ভুল নাম্বার",
     "ভুল নম্বর",
     "ভুল একাউন্ট",
@@ -38,6 +48,41 @@ PAYMENT_FAILED_TERMS = (
     "পেমেন্ট ফেল",
     "টাকা কেটে",
     "ব্যালেন্স কেটে",
+    "লেনদেন ব্যর্থ",
+)
+
+PAYMENT_CONTEXT_TERMS = (
+    "payment",
+    "transaction",
+    "checkout",
+    "merchant payment",
+    "bill payment",
+    "recharge",
+    "cashout",
+    "cash out",
+    "পেমেন্ট",
+    "লেনদেন",
+)
+
+DEDUCTION_TERMS = (
+    "balance deducted",
+    "money deducted",
+    "amount deducted",
+    "debited",
+    "deducted",
+    "charged",
+    "cut from balance",
+    "টাকা কেটে",
+    "ব্যালেন্স কেটে",
+)
+
+PAYMENT_FAILURE_EXPLICIT_TERMS = (
+    "payment failed",
+    "transaction failed",
+    "failed transaction",
+    "charged but",
+    "পেমেন্ট ফেইল",
+    "পেমেন্ট ফেল",
     "লেনদেন ব্যর্থ",
 )
 
@@ -119,7 +164,9 @@ def classify_message(message: str) -> Classification:
             evidence=evidence,
         )
 
-    if contains_any(text, PAYMENT_FAILED_TERMS):
+    has_failed_payment = contains_any(text, PAYMENT_FAILURE_EXPLICIT_TERMS)
+    has_contextual_deduction = contains_any(text, PAYMENT_CONTEXT_TERMS) and contains_any(text, DEDUCTION_TERMS)
+    if has_failed_payment or has_contextual_deduction:
         evidence = ("payment_failure_signal",)
         if "deduct" in text or "debited" in text or "কেটে" in text:
             evidence = evidence + ("balance_deduction_signal",)
